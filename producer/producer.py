@@ -53,7 +53,8 @@ def place_order():
 def order_status(message_id):
     try:
         # Query the database for the order status
-        cursor.execute("SELECT product_name,status FROM orders WHERE message_id = %s", (message_id,))
+        cursor.execute("SELECT product_name, status FROM orders WHERE id = %s", (int(message_id),))
+
         result = cursor.fetchone()
 
         if result:
