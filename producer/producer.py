@@ -48,17 +48,31 @@ def place_order():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
+#     # Route to check order status
+@app.route('/order_status/<message_id>', methods=['GET'])
+def order_status(message_id):
+    try:
+        # Query the database for the order status
+        cursor.execute("SELECT product_name,status FROM orders WHERE message_id = %s", (message_id,))
+        result = cursor.fetchone()
+
+        if result:
+            return jsonify({"product_name": result[0], "status": result[1]})
+        else:
+            return jsonify({"error": "Order not found"}), 404
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # New endpoint: Check order status
-@app.route('/order_status', methods=['GET'])
-def order_status():
-    message_id = request.args.get('message_id')
-    cursor.execute("SELECT product_name,status FROM orders WHERE id = %s", (message_id,))
-    result = cursor.fetchone()
-    if result:
-        return jsonify({"product_name": result[0], "status": result[1]})
-    else:
-        return jsonify({"error": "Order not found"}), 404
+# @app.route('/order_status/<message_id>', methods=['GET'])
+# def order_status(message_id):
+#     try:
+#         cursor.execute("SELECT product_name,status FROM orders WHERE id = %s", (message_id,))
+#         result = cursor.fetchone()
+#         if result:
+#             return jsonify({"product_name": result[0], "status": result[1]})
+#         else:
+#             return jsonify({"error": "Order not found"}), 404
 
 
 if __name__ == '__main__':
