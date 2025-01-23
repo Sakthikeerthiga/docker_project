@@ -20,6 +20,9 @@
         .product-list {
             margin-top: 20px;
         }
+        .order-history {
+            margin-top: 30px;
+        }
     </style>
 </head>
 <body>
@@ -60,6 +63,17 @@
                 </div>
             </div>
         </section>
+
+        <!-- Order History Section -->
+        <section class="order-history mt-5">
+            <h2 class="text-center">View Your Order History</h2>
+            <div class="row">
+                <div class="col-md-6 offset-md-3">
+                    <button class="btn btn-info w-100" onclick="viewOrderHistory()">View Order History</button>
+                    <ul id="order-history-list" class="list-group mt-4"></ul>
+                </div>
+            </div>
+        </section>
     </div>
 
     <script>
@@ -84,27 +98,51 @@
             }
         }
 
-    async function OrderStatus() {
-        const message_id = document.getElementById("message_id").value; // Ensure the input field has this ID
-        try {
-            const response = await fetch(`http://localhost:5000/order_status/${message_id}`);
+        async function OrderStatus() {
+            const message_id = document.getElementById("message_id").value;
+            try {
+                const response = await fetch(`http://localhost:5000/order_status/${message_id}`);
 
-            if (!response.ok) {
-                throw new Error("Failed to fetch the order status.");
+                if (!response.ok) {
+                    throw new Error("Failed to fetch the order status.");
+                }
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    alert(`Status for '${data.product_name}': ${data.status}`);
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Order Not found.");
             }
-
-            const data = await response.json();
-
-            if (data.error) {
-                alert(data.error); // Handle the case where the order is not found
-            } else {
-                alert(`Status for '${data.product_name}': ${data.status}`);
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Order Not found.");
         }
-    }
+
+        async function viewOrderHistory() {
+            try {
+                const response = await fetch("http://localhost:5000/order_history");
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch order history.");
+                }
+
+                const orders = await response.json();
+
+                const orderHistoryList = document.getElementById("order-history-list");
+                orderHistoryList.innerHTML = ''; // Clear previous list
+                orders.forEach(order => {
+                    const listItem = document.createElement("li");
+                    listItem.className = "list-group-item";
+                    listItem.textContent = `Order ID: ${order.id} | Product: ${order.product_name} | Status: ${order.status}`;
+                    orderHistoryList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error fetching order history. Please try again.");
+            }
+        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

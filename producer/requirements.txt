@@ -2,3 +2,5 @@ Flask
 flask-cors
 pika
 mysql-connector-python
+python-dotenv
+jsonschema
